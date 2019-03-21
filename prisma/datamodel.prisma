@@ -1,4 +1,110 @@
+enum Gender {
+  Male
+  Female
+}
+
+enum Section {
+  Family
+  Job
+  Social
+  Sports
+  Reading
+  Travels
+  Games
+}
+
+type Geo {
+  lat: String!
+  lng: String!
+}
+
+type Address {
+  id: ID! @unique
+  street: String!
+  suite: String!
+  city: String!
+  zipcode: String!
+  geo: Geo!
+  country: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type User {
   id: ID! @unique
+  email: String! @unique
+  password: String!
   name: String!
+  gender: Gender!
+  birthday: DateTime
+  phone: String!
+  address: Address!
+  posts: [Post!]! @relation(name: "PostToUser" onDelete: CASCADE)
+  comments: [Comment!]! @relation(name: "CommentToUser" onDelete: CASCADE)
+  albums: [Album!]! @relation(name: "AlbumToUser" onDelete: CASCADE)
+  todos: [Todo!]! @relation(name: "TodoToUser" onDelete: CASCADE)
+  reviews: [Review!]! @relation(name: "ReviewToUser" onDelete: CASCADE)
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Post {
+  id: ID! @unique
+  title: String!
+  body: String!
+  published: Boolean! @default(value: "false")
+  comments: [Comment!]! @relation(name: "CommentToPost" onDelete: CASCADE)
+  reviews: [Review!]! @relation(name: "ReviewToPost" onDelete: CASCADE)
+  author: User! @relation(name: "PostToUser" onDelete: SET_NULL)
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Comment {
+  id: ID! @unique
+  body: String
+  post: Post! @relation(name: "CommentToPost" onDelete: SET_NULL)
+  author: User! @relation(name: "CommentToUser" onDelete: SET_NULL)
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Album {
+  id: ID! @unique
+  title: String!
+  photos: [Photo!]! @relation(name: "PhotoToAlbum" onDelete: CASCADE)
+  author: User! @relation(name: "AlbumToUser" onDelete: SET_NULL)
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Photo {
+  id: ID! @unique
+  title: String!
+  url: String!
+  thumbnailUrl: String!
+  album: Album! @relation(name: "PhotoToAlbum" onDelete: SET_NULL)
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Todo {
+  id: ID! @unique
+  text: String!
+  topic: String!
+  section: Section!
+  completed: Boolean! @default(value: "false")
+  author: User! @relation(name: "TodoToUser" onDelete: SET_NULL)
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Review {
+  id: ID! @unique
+  text: String!
+  rate: Int!
+  target: Post! @relation(name: "ReviewToPost" onDelete: SET_NULL)
+  author: User! @relation(name: "ReviewToUser" onDelete: SET_NULL)
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }

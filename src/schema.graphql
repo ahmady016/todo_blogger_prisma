@@ -1,26 +1,39 @@
+enum Gender {
+  Male
+  Female
+}
+
+enum Section {
+  Family
+  Job
+  Social
+  Sports
+  Reading
+  Travels
+  Games
+}
+
 input GeoInput {
-  lat: String,
+  lat: String
   lng: String
 }
 input AddressInput {
-  street: String,
-  suite: String,
-  city: String,
-  zipcode: String,
+  street: String
+  suite: String
+  city: String
+  zipcode: String
+  country: String
   geo: GeoInput
-}
-input CompanyInput {
-  name: String,
-  catchPhrase: String,
-  bs: String
 }
 
 input UserInput {
-  name: String,
   email: String,
-  phone: String,
-  address: AddressInput,
-  company: CompanyInput
+  password: String,
+  name: String
+  gender: Gender
+  phone: String
+  birthday: String
+  address: AddressInput
 }
 
 input PostInput {
@@ -115,24 +128,22 @@ type Address {
   city: String
   zipcode: String
   geo: Geo
-}
-
-type Company {
-  name: String
-  catchPhrase: String
-  bs: String
+  country: String
 }
 
 type User {
   id: String
-  name: String
   email: String
+  name: String
+  gender: Gender
   phone: String
+  birthday: String
   address: Address
-  company: Company
   posts: [Post]
+  comments: [Comment]
   albums: [Album]
   todos: [Todo]
+  reviews: [Review]
 }
 
 type Post {
@@ -176,4 +187,14 @@ type Todo {
   completed: Boolean
   authorId: String
   author: User
+}
+
+type Review {
+  id: String
+  text: String
+  rate: Int
+  target: Post
+  author: User
+  createdAt: String
+  updatedAt: String
 }

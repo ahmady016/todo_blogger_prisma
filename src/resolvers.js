@@ -33,88 +33,81 @@ const connect = (obj, key) => {
   return obj;
 };
 
-const getUserByEmailOrId = async (args, context) => {
-  let user = await context.prisma.user({ id: args.emailOrId });
-  if(!user)
-    user = await context.prisma.user({ email: args.emailOrId });
-  return user;
+let list;
+const getUserByEmailOrId = async (emailOrId, db, info) => {
+  list = await db.query.users({ where: { OR: [{ id: emailOrId }, { email: emailOrId }] } }, info);
+  return list[0];
 }
-
-const getUserWith = async (args, context, children) => {
-  let user = await context.prisma.user({ id: args.emailOrId })[children]();
-  if(!user)
-    user = await context.prisma.user({ email: args.emailOrId })[children]();
-  return user;
+const getUserWith = async (emailOrId, db, children, info) => {
+  list = await db.query.users({ where: { OR: [{ id: emailOrId }, { email: emailOrId }] } }, info);
+  return list[children];
+}
+const getAlbumPhotos = async (id, db, info) => {
+  list = await db.query.album({ where: { id } }, info);
+  return list.photos;
 }
 
 const Query = {
-  users: (root, args, context) => context.prisma.users(),
-  user: (root, args, context) => getUserByEmailOrId(args, context),
-  posts: (root, args, context) => context.prisma.posts(),
-  userPosts: (root, args, context) => getUserWith(args, context, 'posts'),
-  post: (root, args, context) => context.prisma.post({ id: args.id }),
-  comments: (root, args, context) => context.prisma.comments(),
-  postComments: (root, args, context) => context.prisma.post({ id: args.id }).comments(),
-  comment: (root, args, context) => context.prisma.comment({ id: args.id }),
-  albums: (root, args, context) => context.prisma.albums(),
-  userAlbums: (root, args, context) => getUserWith(args, context, 'albums'),
-  album: (root, args, context) => context.prisma.album({ id: args.id }),
-  photos: (root, args, context) => context.prisma.photos(),
-  albumPhotos: (root, args, context) => context.prisma.album({ id: args.id }).photos(),
-  photo: (root, args, context) => context.prisma.photo({ id: args.id }),
-  todos: (root, args, context) => context.prisma.todoes(),
-  userTodos: (root, args, context) => getUserWith(args, context, 'todos'),
-  todo: (root, args, context) => context.prisma.todo({ id: args.id }),
+  users: (_, args, { db }, info) => db.query.users({}, info),
+  user: (_, { emailOrId }, { db }, info) => getUserByEmailOrId(emailOrId, db, info),
+  posts: (_, args, { db }, info) => db.query.posts({}, info),
+  userPosts: (_, { emailOrId }, { db }, info) => getUserWith(emailOrId, db, 'posts', info),
+  post: (_, { id }, { db }, info) => db.query.post({ where: { id } }),
+  comments: (_, args, { db }, info) => db.query.comments({}, info),
+  postComments: (_, args, { db }, info) => db.query.post({ id: args.id }).comments(),
+  comment: (_, { id }, { db }, info) => db.query.comment({ where: { id } }),
+  albums: (_, args, { db }, info) => db.query.albums({}, info),
+  userAlbums: (_, { emailOrId }, { db }, info) => getUserWith(emailOrId, db, 'albums', info),
+  album: (_, { id }, { db }, info) => db.query.album({ where: { id } }),
+  photos: (_, args, { db }, info) => db.query.photos({}, info),
+  albumPhotos: (_, { id }, { db }, info) => getAlbumPhotos(id, db, info),
+  photo: (_, { id }, { db }, info) => db.query.photo({ where: { id } }),
+  todos: (_, args, { db }, info) => db.query.todoes({}, info),
+  userTodos: (_, { emailOrId }, { db }, info) => getUserWith(emailOrId, db, 'todoes', info),
+  todo: (_, { id }, { db }, info) => db.query.todo({ where: { id } }),
 };
 
 const Mutation = {
-  addNewUser: (root, args, context) => context.prisma.createUser(convert(args.data)),
-  updateUser: (root, args, context) => context.prisma.updateUser({ where: { id: args.id }, data: convert(args.data) }),
-  deleteUser: (root, args, context) => context.prisma.deleteUser({ id: args.id }),
-  addNewPost: (root, args, context) => context.prisma.createPost(connect(convert(args.data), 'author')),
-  updatePost: (root, args, context) => context.prisma.updatePost({ where: { id: args.id }, data: convert(args.data) }),
-  deletePost: (root, args, context) => context.prisma.deletePost({ id: args.id }),
-  addNewComment: (root, args, context) => context.prisma.createComment(connect(convert(args.data), 'post,author')),
-  updateComment: (root, args, context) => context.prisma.updateComment({ where: { id: args.id }, data: convert(args.data) }),
-  deleteComment: (root, args, context) => context.prisma.deleteComment({ id: args.id }),
-  addNewAlbum: (root, args, context) => context.prisma.createAlbum(connect(convert(args.data), 'author')),
-  updateAlbum: (root, args, context) => context.prisma.updateAlbum({ where: { id: args.id }, data: convert(args.data) }),
-  deleteAlbum: (root, args, context) => context.prisma.deleteAlbum({ id: args.id }),
-  addNewPhoto: (root, args, context) => context.prisma.createPhoto(connect(convert(args.data), 'album')),
-  updatePhoto: (root, args, context) => context.prisma.updatePhoto({ where: { id: args.id }, data: convert(args.data) }),
-  deletePhoto: (root, args, context) => context.prisma.deletePhoto({ id: args.id }),
-  addNewTodo: (root, args, context) => context.prisma.createTodo(connect(convert(args.data), 'author')),
-  updateTodo: (root, args, context) => context.prisma.updateTodo({ where: { id: args.id }, data: convert(args.data) }),
-  deleteTodo: (root, args, context) => context.prisma.deleteTodo({ id: args.id }),
+  addNewUser: (_, { data }, { db }, info) => db.mutation.createUser({ data: convert(data) }, info),
+  updateUser: (_, { id, data }, { db }, info) => db.mutation.updateUser({ where: { id }, data: convert(data) }, info),
+  deleteUser: (_, { id }, { db }, info) => db.mutation.deleteUser({ where: { id } }, info),
+  addNewPost: (_, { data }, { db }, info) => db.mutation.createPost({ data: connect(convert(data), 'author') }, info),
+  updatePost: (_, { id, data }, { db }, info) => db.mutation.updatePost({ where: { id } },{ data: convert(data) }, info),
+  deletePost: (_, { id }, { db }, info) => db.mutation.deletePost({ where: { id } }, info),
+  addNewComment: (_, { data }, { db }, info) => db.mutation.createComment({ data: connect(convert(data), 'post,author') }, info),
+  updateComment: (_, {id, data}, { db }, info) => db.mutation.updateComment({ where: { id }, data: convert(data) }, info),
+  deleteComment: (_, { id }, { db }, info) => db.mutation.deleteComment({ where: { id } }, info),
+  addNewAlbum: (_, { data }, { db }, info) => db.mutation.createAlbum({ data: connect(convert(data), 'author') }, info),
+  updateAlbum: (_, { id, data }, { db }, info) => db.mutation.updateAlbum({ where: { id }, data: convert(data) }, info),
+  deleteAlbum: (_, { id }, { db }, info) => db.mutation.deleteAlbum({ where: { id } }, info),
+  addNewPhoto: (_, { data }, { db }, info) => db.mutation.createPhoto({ data: connect(convert(data), 'album') }, info),
+  updatePhoto: (_, { id, data }, { db }, info) => db.mutation.updatePhoto({ where: { id }, data: convert(data) }, info),
+  deletePhoto: (_, { id }, { db }, info) => db.mutation.deletePhoto({ where: { id } }, info),
+  addNewTodo: (_, { data }, { db }, info) => db.mutation.createTodo({ data: connect(convert(data), 'author') }, info),
+  updateTodo: (_, { id, data }, { db }, info) => db.mutation.updateTodo({ where: { id }, data: convert(data) }, info),
+  deleteTodo: (_, { id }, { db }, info) => db.mutation.deleteTodo({ where: { id } }, info),
 };
 
 const Address = {
-  geo: (root, args, context) => context.prisma.address({ id: root.id }).geo(),
+
 }
 const User = {
-  address: (root, args, context) => context.prisma.user({ id: root.id }).address(),
-  company: (root, args, context) => context.prisma.user({ id: root.id }).company(),
-  posts: (root, args, context) => context.prisma.user({ id: root.id }).posts(),
-  albums: (root, args, context) => context.prisma.user({ id: root.id }).albums(),
-  todos: (root, args, context) => context.prisma.user({ id: root.id }).todos()
+
 };
 const Post = {
-  author: (root, args, context) => context.prisma.post({ id: root.id }).author(),
-  comments: (root, args, context) => context.prisma.post({ id: root.id }).comments(),
+
 };
 const Comment = {
-  post: (root, args, context) => context.prisma.comment({ id: root.id }).post(),
-  author: (root, args, context) => context.prisma.comment({ id: root.id }).author(),
+
 };
 const Album = {
-  author: (root, args, context) => context.prisma.album({ id: root.id }).author(),
-  photos: (root, args, context) => context.prisma.album({ id: root.id }).photos(),
+
 };
 const Photo = {
-  album: (root, args, context) => context.prisma.photo({ id: root.id }).album(),
+
 };
 const Todo = {
-  author: (root, args, context) => context.prisma.todo({ id: root.id }).author(),
+
 };
 
 export default {

@@ -2,15 +2,16 @@ import { Prisma } from 'prisma-binding'
 import { GraphQLServer } from 'graphql-yoga'
 import resolvers from './resolvers'
 
-const prisma = new Prisma({
+const db = new Prisma({
   typeDefs: 'prisma/prisma.graphql',
   endpoint: "http://localhost:4466/todo-blogger"
-})
+});
 
 const server = new GraphQLServer({
   typeDefs: 'src/schema.graphql',
-  context: { prisma },
+  context: { db },
   resolvers,
-})
+});
 
-server.start( { port: 4100 }, ({ port }) => console.log(`Server is running on localhost:${port}`));
+const port = process.env.PORT || 4100;
+server.start( { port }, ({ port }) => console.log(`Server is running on http://localhost:${port}`));

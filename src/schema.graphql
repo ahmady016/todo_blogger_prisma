@@ -69,7 +69,9 @@ input AlbumInput {
 }
 
 input TodoInput {
-  title: String
+  text: String
+  topic: String
+  section: Section
   completed: Boolean
   authorId: String
   author: UserInput
@@ -183,7 +185,9 @@ type Photo {
 
 type Todo {
   id: String
-  title: String
+  text: String
+  topic: String
+  section: Section
   completed: Boolean
   authorId: String
   author: User

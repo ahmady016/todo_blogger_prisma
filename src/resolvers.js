@@ -46,6 +46,15 @@ const getAlbumPhotos = async (id, db, info) => {
   list = await db.query.album({ where: { id } }, info);
   return list.photos;
 }
+const getPostComments = async (id, db, info) => {
+  list = await db.query.post({ where: { id } }, info);
+  return list.comments;
+}
+const createPost = (data, db, info) => {
+  if(data.comments)
+    data.comments = { create: data.comments.map(comment => connect(comment, 'author')) };
+  return db.mutation.createPost({ data: connect(data, 'author') }, info);
+}
 
 const Query = {
   users: (_, args, { db }, info) => db.query.users({}, info),
@@ -54,7 +63,7 @@ const Query = {
   userPosts: (_, { emailOrId }, { db }, info) => getUserWith(emailOrId, db, 'posts', info),
   post: (_, { id }, { db }, info) => db.query.post({ where: { id } }),
   comments: (_, args, { db }, info) => db.query.comments({}, info),
-  postComments: (_, args, { db }, info) => db.query.post({ id: args.id }).comments(),
+  postComments: (_, { id }, { db }, info) => getPostComments(id ,db, info),
   comment: (_, { id }, { db }, info) => db.query.comment({ where: { id } }),
   albums: (_, args, { db }, info) => db.query.albums({}, info),
   userAlbums: (_, { emailOrId }, { db }, info) => getUserWith(emailOrId, db, 'albums', info),
@@ -71,7 +80,7 @@ const Mutation = {
   addNewUser: (_, { data }, { db }, info) => db.mutation.createUser({ data: convert(data) }, info),
   updateUser: (_, { id, data }, { db }, info) => db.mutation.updateUser({ where: { id }, data: convert(data) }, info),
   deleteUser: (_, { id }, { db }, info) => db.mutation.deleteUser({ where: { id } }, info),
-  addNewPost: (_, { data }, { db }, info) => db.mutation.createPost({ data: connect(convert(data), 'author') }, info),
+  addNewPost: (_, { data }, { db }, info) => createPost(data, db, info),
   updatePost: (_, { id, data }, { db }, info) => db.mutation.updatePost({ where: { id } },{ data: convert(data) }, info),
   deletePost: (_, { id }, { db }, info) => db.mutation.deletePost({ where: { id } }, info),
   addNewComment: (_, { data }, { db }, info) => db.mutation.createComment({ data: connect(convert(data), 'post,author') }, info),

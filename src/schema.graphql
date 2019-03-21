@@ -1,0 +1,179 @@
+input GeoInput {
+  lat: String,
+  lng: String
+}
+input AddressInput {
+  street: String,
+  suite: String,
+  city: String,
+  zipcode: String,
+  geo: GeoInput
+}
+input CompanyInput {
+  name: String,
+  catchPhrase: String,
+  bs: String
+}
+
+input UserInput {
+  name: String,
+  email: String,
+  phone: String,
+  address: AddressInput,
+  company: CompanyInput
+}
+
+input PostInput {
+  title: String
+  body: String
+  published: Boolean
+  authorId: String
+  author: UserInput
+  comments: [CommentInput]
+}
+
+input CommentInput {
+  body: String
+  postId: String
+  post: PostInput
+  authorId: String
+  author: UserInput
+}
+
+input PhotoInput {
+  title: String
+  url: String
+  thumbnailUrl: String
+  albumId: String
+  album: AlbumInput
+}
+
+input AlbumInput {
+  title: String
+  authorId: String
+  author: UserInput
+  photos: [PhotoInput]
+}
+
+input TodoInput {
+  title: String
+  completed: Boolean
+  authorId: String
+  author: UserInput
+}
+
+type Mutation {
+  addNewUser(data: UserInput!): User!
+  updateUser(id: String!, data: UserInput!): User!
+  deleteUser(id: String!): User
+  addNewPost(data: PostInput!): Post!
+  updatePost(id: String!, data: PostInput!): Post!
+  deletePost(id: String!): Post
+  addNewComment(data: CommentInput!): Comment!
+  updateComment(id: String!, data: CommentInput!): Comment!
+  deleteComment(id: String!): Comment
+  addNewAlbum(data: AlbumInput!): Album!
+  updateAlbum(id: String!, data: AlbumInput!): Album!
+  deleteAlbum(id: String!): Album
+  addNewPhoto(data: PhotoInput!): Photo!
+  updatePhoto(id: String!, data: PhotoInput!): Photo!
+  deletePhoto(id: String!): Photo
+  addNewTodo(data: TodoInput!): Todo!
+  updateTodo(id: String!, data: TodoInput!): Todo!
+  deleteTodo(id: String!): Todo
+}
+
+type Query {
+  users: [User]
+  user(emailOrId: String!): User
+  posts: [Post]
+  userPosts(emailOrId: String!): [Post]
+  post(id: String!): Post
+  comments: [Comment]
+  postComments(id: String!): [Comment]
+  comment(id: String!): Comment
+  albums: [Album]
+  userAlbums(emailOrId: String!): [Album]
+  album(id: String!): Album
+  photos: [Photo]
+  albumPhotos(id: String!): [Photo]
+  photo(id: String!): Photo
+  todos: [Todo]
+  userTodos(emailOrId: String!): [Todo]
+  todo(id: String!): Todo
+}
+
+type Geo {
+  lat: String,
+  lng: String
+}
+
+type Address {
+  id: String
+  street: String
+  suite: String
+  city: String
+  zipcode: String
+  geo: Geo
+}
+
+type Company {
+  name: String
+  catchPhrase: String
+  bs: String
+}
+
+type User {
+  id: String
+  name: String
+  email: String
+  phone: String
+  address: Address
+  company: Company
+  posts: [Post]
+  albums: [Album]
+  todos: [Todo]
+}
+
+type Post {
+  id: String
+  title: String
+  body: String
+  published: Boolean
+  userId: String
+  author: User
+  comments: [Comment]
+}
+
+type Comment {
+  id: String
+  body: String
+  postId: Int
+  post: Post
+  author: User
+}
+
+type Album {
+  id: String
+  title: String
+  authorId: String
+  author: User
+  photos: [Photo]
+}
+
+type Photo {
+  id: String
+  title: String
+  url: String
+  thumbnailUrl: String
+  albumId: String
+  album: Album
+}
+
+type Todo {
+  id: String
+  title: String
+  completed: Boolean
+  authorId: String
+  author: User
+}

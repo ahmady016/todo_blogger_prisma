@@ -1,2 +1,5 @@
 endpoint: http://localhost:4466/todo-blogger
 datamodel: datamodel.prisma
+hooks:
+  post-deploy:
+    - graphql get-schema --endpoint http://localhost:4466/todo-blogger --output prisma.graphql

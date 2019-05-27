@@ -7,7 +7,8 @@
   "author": "ahmady016 <ahmady09@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "babel-watch src/server.js"
+    "start": "babel-watch src/server.js",
+    "deploy": "cd prisma && prisma deploy"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",

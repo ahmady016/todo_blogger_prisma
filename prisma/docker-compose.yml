@@ -16,6 +16,7 @@ services:
             host: ec2-184-73-153-64.compute-1.amazonaws.com
             port: '5432'
             database: datpo9d93gjgva
+            schema: public
             user: hwfqyaptxwydip
             password: fa6ddf823060bfc1e10bc327c7ddf7a3dbdba64cf95386aa79550c2953351dd3
             rawAccess: true

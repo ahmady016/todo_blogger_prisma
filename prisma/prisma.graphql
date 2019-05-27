@@ -1,5 +1,5 @@
 # source: http://localhost:4466/todo-blogger
-# timestamp: Thu Mar 21 2019 16:57:27 GMT+0200 (Eastern European Standard Time)
+# timestamp: Sat Mar 23 2019 21:25:04 GMT+0200 (Eastern European Standard Time)
 
 type Address implements Node {
   id: ID!
